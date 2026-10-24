@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SpendSense</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f1f5f2;--card:#fff;--ink:#10201e;--mute:#62746f;--line:#dde7e2;--hero:#0e4744;--heroink:#f2fbf7;--mint:#b6ecd0;--warn:#f0b429;--bad:#e2513d;--ok:#1f9d6b;--chip:#e8f0ec;
+--Food:#1f9d6b;--Transport:#3b82c4;--Study:#8b6fd6;--Fun:#e2813d;--Bills:#d4506f;--Other:#7a8b87;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1513;--card:#13221f;--ink:#e7f3ef;--mute:#8fa8a1;--line:#233a34;--hero:#17554f;--chip:#1b302b;--ok:#4cc794;--bad:#f07a68}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b1513;--card:#13221f;--ink:#e7f3ef;--mute:#8fa8a1;--line:#233a34;--hero:#17554f;--chip:#1b302b;--ok:#4cc794;--bad:#f07a68}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:18px 16px 110px}
+[hidden]{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.hi{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.hi small{display:block;font-size:13px;font-weight:400;color:var(--mute);letter-spacing:0}
+.icon{width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:18px;padding:0;color:var(--ink)}
+.mnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mnav b{font-weight:600}
+.mnav button{background:var(--chip);color:var(--ink);width:36px;height:36px;border-radius:50%;padding:0;font-size:18px}
+.mnav button:disabled{opacity:.35;cursor:default}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-top:14px}
+h2{font-size:16px;font-weight:600;margin:0 0 12px}
+.hero{background:var(--hero);color:var(--heroink);border:0;margin-top:0;padding:24px}
+.hero .lbl{opacity:.8;font-size:14px}
+.big{font-size:clamp(52px,16vw,84px);font-weight:800;letter-spacing:-.045em;line-height:1;margin:4px 0 16px;font-variant-numeric:tabular-nums}
+.bar{height:12px;border-radius:8px;background:rgba(255,255,255,.18);overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:var(--mint);border-radius:8px;transition:width .5s}
+.bar b.warn{background:var(--warn)}.bar b.bad{background:var(--bad)}
+.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px;margin-top:10px;opacity:.9}
+.alert{margin-top:16px;padding:12px 14px;border-radius:14px;font-weight:600;font-size:15px;line-height:1.35}
+.alert.warn{background:#fff1cc;color:#684700}.alert.bad{background:#ffdad3;color:#7a1d10}.alert.ok{background:rgba(255,255,255,.14);color:var(--heroink)}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 18px;font-weight:600;background:var(--hero);color:var(--heroink)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;min-width:0}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+label{display:grid;gap:5px;font-size:13px;color:var(--mute)}
+.chart{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.legend{flex:1;min-width:170px;display:grid;gap:8px;font-size:14px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend .d{width:12px;height:12px;border-radius:4px}
+.legend em{margin-left:auto;font-style:normal;font-variant-numeric:tabular-nums;color:var(--mute)}
+.scroll{overflow-x:auto;margin:0 -4px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+.ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none;background:var(--chip)}
+li .n{flex:1;min-width:0}li .n span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}li .n small{color:var(--mute)}
+li .a{font-weight:600;font-variant-numeric:tabular-nums}
+li .x{background:none;color:var(--mute);padding:4px 8px;font-size:20px}
+.empty{text-align:center;padding:26px 10px;color:var(--mute)}
+.fab{position:fixed;right:max(16px,calc(50% - 344px));bottom:calc(22px + env(safe-area-inset-bottom,0px));padding:16px 22px;border-radius:30px;font-size:16px;box-shadow:0 8px 24px rgba(14,71,68,.35);z-index:5}
+dialog{border:0;border-radius:24px;padding:22px;width:min(440px,calc(100% - 24px));background:var(--card);color:var(--ink);margin:auto}
+dialog::backdrop{background:rgba(5,20,18,.55)}
+dialog h2{font-size:20px;font-weight:800;margin-bottom:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.amount{font-size:40px;font-weight:800;letter-spacing:-.03em;padding:10px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;width:0;height:0}
+.chips label{background:var(--chip);color:var(--ink);padding:8px 13px;border-radius:20px;font-size:14px;cursor:pointer;display:block;border:2px solid transparent}
+.chips input:checked+span,.chips label:has(input:checked){border-color:var(--hero);font-weight:600}
+.chips input:focus-visible+span{outline:3px solid var(--warn)}
+.hint{font-size:13px;color:var(--mute);min-height:20px}
+.actions{display:flex;gap:10px;margin-top:6px}.actions button{flex:1}
+.sec{background:var(--chip);color:var(--ink)}
+.danger{background:none;color:var(--bad);padding:8px 0;text-align:left}
+.brand{position:absolute;left:20px;top:calc(18px + env(safe-area-inset-top,0px));z-index:4;display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.02em}
+.mark{width:38px;height:38px;border-radius:12px;background:#b6ecd0;color:#0e4744;display:grid;place-items:center;font-size:20px}
+#hero{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;color:#eafaf3;background:linear-gradient(#0b2530 0%,#0c3b3a 58%,#145a47 100%);border-radius:0 0 34px 34px;isolation:isolate}
+.stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 30% 8%,#fff,transparent),radial-gradient(1px 1px at 55% 22%,#fff,transparent),radial-gradient(1.5px 1.5px at 72% 10%,#fff,transparent),radial-gradient(1px 1px at 88% 30%,#fff,transparent),radial-gradient(1px 1px at 20% 35%,#fff,transparent);animation:tw 4s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.4}to{opacity:1}}
+.moon{position:absolute;right:12%;top:11%;width:68px;height:68px;border-radius:50%;background:#fff1c2;box-shadow:0 0 60px 24px rgba(255,241,194,.25)}
+.lawn{position:absolute;left:-6%;right:-6%;bottom:0;height:40%;z-index:1;background:radial-gradient(130% 100% at 50% 0,#2a7d5a 0,#12523f 60%,#0d4034 100%);border-radius:50% 50% 0 0/24% 24% 0 0}
+#zoo{position:absolute;inset:0;z-index:2;overflow:hidden}
+.hc{position:relative;z-index:3;text-align:center;padding:clamp(90px,17vh,160px) 20px 0;pointer-events:none}
+.hc h1{font-size:clamp(40px,9vw,72px);line-height:1;letter-spacing:-.045em;margin:10px 0 14px;font-weight:800}
+.hc h1 em{font-style:normal;color:#b6ecd0}
+.eyebrow{color:#f5d98a;font-size:14px;margin:0;min-height:20px}
+.lead{color:#a9c9bf;font-size:17px;max-width:38ch;margin:0 auto 22px}
+.cue{pointer-events:auto;background:#b6ecd0;color:#0a3331;padding:14px 22px;border-radius:30px;font-size:16px;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.cr{position:absolute;left:0;top:0;cursor:pointer;line-height:1;user-select:none;will-change:transform}
+.em{display:block}
+.b{display:block;font-size:34px;animation:bob .5s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-5px) rotate(3deg)}}
+.hop .b{animation:hop .45s ease-out}
+@keyframes hop{40%{transform:translateY(-26px) scale(1.2)}}
+.spin .b{animation:spin .7s ease-in-out}
+@keyframes spin{to{transform:rotate(360deg) scale(1.3)}}
+.bub{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap;background:#fff8e6;color:#3a2a10;border-radius:12px;padding:4px 9px;font:600 12px/1.3 "Bricolage Grotesque",system-ui,sans-serif;pointer-events:none;animation:pop .25s both}
+@keyframes pop{from{opacity:0;translate:0 6px}}
+.pt{position:absolute;font-size:18px;pointer-events:none;animation:rise 1s ease-out forwards}
+@keyframes rise{to{transform:translate(var(--dx),-70px) scale(.6);opacity:0}}
+.ff{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe89a;box-shadow:0 0 10px 3px rgba(255,232,154,.6);animation:ffl 6s ease-in-out infinite alternate}
+@keyframes ffl{50%{transform:translate(18px,-26px);opacity:.3}to{transform:translate(-14px,10px)}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;z-index:9;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.on{opacity:1}
+.toast{width:max-content;max-width:min(92vw,420px);text-align:center;line-height:1.4}
+.toast.warn{background:#fff1cc;color:#684700;border:2px solid var(--warn);font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+/* Person switcher */
+.who{display:flex;gap:8px;overflow-x:auto;margin:-4px 0 12px;padding:4px 2px;scrollbar-width:none}
+.who::-webkit-scrollbar{display:none}
+.who button{flex:none;padding:8px 14px;border-radius:20px;font-size:14px;background:var(--chip);color:var(--ink);border:2px solid transparent;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who button.on{border-color:var(--hero);font-weight:800}
+.who .plus{background:none;border:2px dashed var(--line);color:var(--mute)}
+/* Welcome setup pop-up */
+#welcome{padding:30px 24px 24px;border-radius:28px;overflow:auto;box-shadow:0 30px 80px rgba(5,20,18,.45),0 4px 14px rgba(5,20,18,.2)}
+#welcome::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,var(--hero),var(--mint))}
+#welcome::backdrop{background:rgba(5,20,18,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#welcome[open]{animation:wpop .4s cubic-bezier(.2,.9,.3,1.15) both}
+#welcome[open]::backdrop{animation:wfade .3s ease both}
+@keyframes wpop{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes wfade{from{opacity:0}}
+#welcome h2{font-size:clamp(22px,6vw,26px);letter-spacing:-.02em;margin:0 0 6px;padding-right:40px}
+.wsub{color:var(--mute);margin:0 0 18px}
+.wx{position:absolute;right:14px;top:18px;width:36px;height:36px;border-radius:50%;padding:0;font-size:22px;line-height:1;background:var(--chip);color:var(--ink)}
+.wx:hover{filter:brightness(.95)}
+.werr{color:var(--bad);font-size:14px;font-weight:600;min-height:20px;margin-top:-4px}
+.wgo{width:100%;padding:14px 18px;font-size:16px;border-radius:14px}
+.wgo:hover{filter:brightness(1.12)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<section id="hero" aria-label="Welcome">
+  <div class="stars"></div><div class="moon"></div><div class="lawn"></div>
+  <div id="zoo" aria-hidden="true"></div>
+  <div class="brand"><span class="mark">₹</span>SpendSense</div>
+  <div class="hc">
+    <p class="eyebrow" id="hmeta"></p>
+    <h1>Your money, <em>finally clear.</em></h1>
+    <p class="lead">Little critters keeping watch over your budgets. Tap one, say hi.</p>
+    <button class="cue" id="cue">See your budgets ↓</button>
+  </div>
+</section>
+<main>
+<section id="app" hidden>
+  <div class="top">
+    <div class="hi"><span id="greet"></span><small id="today"></small></div>
+    <button class="icon" id="gear" aria-label="Settings">⚙︎</button>
+  </div>
+  <div class="who" id="who" role="group" aria-label="People"></div>
+  <div class="mnav"><button id="prev" aria-label="Previous month">‹</button><b id="mlabel"></b><button id="next" aria-label="Next month">›</button></div>
+
+  <section class="card hero" aria-live="polite">
+    <div class="lbl" id="sub"></div>
+    <div class="big" id="left"></div>
+    <div class="bar"><b id="fill"></b></div>
+    <div class="meta"><span id="spent"></span><span id="allow"></span></div>
+    <div class="alert" id="alert" role="status" hidden></div>
+  </section>
+
+  <section class="card"><h2>Where it went</h2>
+    <div class="chart"><svg id="donut" width="168" height="168" viewBox="0 0 168 168" role="img" aria-label="Spending by category"></svg><div class="legend" id="legend"></div></div>
+  </section>
+  <section class="card"><h2>Day by day</h2>
+    <div class="scroll"><svg id="bars" height="170" role="img" aria-label="Daily spending"></svg></div>
+    <div class="hint" id="barnote"></div>
+  </section>
+  <section class="card"><h2>Expenses</h2><ul id="list"></ul></section>
+  <button class="fab" id="fab">+ Add</button>
+</section>
+</main>
+
+<dialog id="welcome" aria-labelledby="wT">
+  <button type="button" class="wx" id="wClose" aria-label="Close">×</button>
+  <h2 id="wT">Welcome to SpendSense 💚</h2>
+  <p class="wsub" id="wSub">Let’s get your money journey started.</p>
+  <form id="wForm" novalidate style="display:grid;gap:12px">
+    <label><span id="wL1">Enter your name</span><input id="wName" maxlength="24" autocomplete="given-name" placeholder="e.g. Aanya"></label>
+    <label><span id="wL2">Set your monthly budget (₹)</span><input id="wBudget" type="number" min="1" step="any" inputmode="decimal" placeholder="e.g. 5000"></label>
+    <div class="werr" id="wErr" role="alert"></div>
+    <button type="submit" class="wgo" id="wGo">Get Started</button>
+  </form>
+</dialog>
+
+<dialog id="add">
+  <h2 id="addT">New expense</h2>
+  <div style="display:grid;gap:12px">
+    <div class="chips" id="kind"><label><input type="radio" name="kind" value="x" checked><span>Expense</span></label><label><input type="radio" name="kind" value="i"><span>Income</span></label></div>
+    <input class="amount" id="amt" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="₹0.00" aria-label="Amount in rupees">
+    <input id="note" maxlength="60" placeholder="What was it? e.g. chai, auto, notebooks" aria-label="Description">
+    <div class="chips" id="chips"></div>
+    <div class="hint" id="hint"></div>
+    <label>Date<input id="date" type="date"></label>
+    <div class="actions"><button class="sec" id="cancel">Cancel</button><button id="save">Save expense</button></div>
+  </div>
+</dialog>
+
+<dialog id="set">
+  <h2>Edit person</h2>
+  <div style="display:grid;gap:12px">
+    <label>Your name<input id="sName" maxlength="24"></label>
+    <label>Monthly budget (₹)<input id="sBudget" type="number" min="1" inputmode="decimal"></label>
+    <div style="display:grid;gap:10px;padding:12px;border:2px dashed var(--line);border-radius:16px">
+      <label style="display:flex;align-items:center;gap:10px;color:var(--ink);font-size:15px;font-weight:600"><input type="checkbox" id="rOn" style="width:20px;height:20px;padding:0;accent-color:var(--hero)">⏰ Remind me to log expenses</label>
+      <label>Remind me every<select id="rMins"><option value="30">30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option><option value="180">3 hours</option></select></label>
+      <div class="hint" id="rHint"></div>
+      <button type="button" class="sec" id="rTest">Send test reminder</button>
+    </div>
+    <div class="actions"><button class="sec" id="export">Export CSV</button><button id="sSave">Save</button></div>
+    <button class="danger" id="wipe">Delete this person</button>
+    <button class="danger" id="clearAll">Clear all data</button>
+    <button class="sec" id="sClose">Close</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+var CATS={Food:'🍜',Transport:'🚌',Study:'📚',Fun:'🎬',Bills:'🧾',Other:'✨'};
+var KW={Food:'coffee cafe lunch dinner breakfast pizza ramen burger grocer market food snack tea boba chipotle starbucks canteen dining sandwich',Transport:'uber lyft bus train metro taxi fuel gas parking bike transit',Study:'book textbook print notebook pen course exam lab library tuition software notes',Fun:'movie cinema netflix spotify game concert party bar club show steam',Bills:'rent phone wifi internet electric water insurance subscription bill laundry'};
+var KEY='spendsense.app',st,now=new Date(),view=ym(now);
+function ym(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function iso(d){return ym(d)+'-'+String(d.getDate()).padStart(2,'0')}
+function mk(n,b){return{id:Date.now()+Math.floor(Math.random()*1000),name:n,budget:b,tx:[],inc:[]}}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.people)return o;if(o&&o.tx){var q=mk(o.name||'Me',o.budget||0);q.tx=o.tx;return{people:[q],active:q.id}}}}catch(e){}return{people:[],active:0}}
+function person(){for(var i=0;i<st.people.length;i++)if(st.people[i].id===st.active)return st.people[i];if(st.people[0]){st.active=st.people[0].id;return st.people[0]}return null}
+function byId(id){return st.people.filter(function(q){return String(q.id)===String(id)})[0]}
+function sum(L,m){return L.filter(function(t){return t.date.slice(0,7)===m}).reduce(function(s,t){return s+t.amt},0)}
+function sm(n){return n<0?'-'+money(-n):money(n)}
+function delPerson(id){var q=byId(id);if(!q||!confirm('Delete '+q.name+' and all their entries? This can’t be undone.'))return;st.people.splice(st.people.indexOf(q),1);save();$('set').close();render();toast('Deleted '+q.name)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+st=load();
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function money(n){n=Math.round(n*100)/100;return '₹'+n.toLocaleString('en-IN',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})}
+function guess(t){t=t.toLowerCase();for(var c in KW){if(KW[c].split(' ').some(function(w){return t.indexOf(w)>-1}))return c}return null}
+function toast(m,ms,cls){var t=$('toast');t.textContent=m;t.classList.remove('warn');if(cls)t.classList.add(cls);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('on')},ms||2200)}
+/* 80% budget alert: once per person per month (budget cycle), using the same % as the budget bar */
+function budgetCheck(){var p=person();if(!p)return;var c=ym(now),inc=sum(p.inc,c),b=p.budget+inc,pc=b>0?sum(p.tx,c)/b*100:(sum(p.tx,c)>0?100:0);
+ p.al=p.al||{};if(pc>=80&&!p.al[c]){p.al[c]=1;save();toast('⚠️ Budget Alert! You’ve used 80% of your budget. Spend carefully to avoid exceeding your limit.',8000,'warn')}}
+
+$('chips').innerHTML='<label><input type="radio" name="cat" value="auto" checked><span>✨ Auto</span></label>'+Object.keys(CATS).map(function(c){return '<label><input type="radio" name="cat" value="'+c+'"><span>'+CATS[c]+' '+c+'</span></label>'}).join('');
+function pick(){return document.querySelector('input[name=cat]:checked').value}
+function updHint(){var p=pick(),g=guess($('note').value);$('hint').textContent=p==='auto'?($('note').value?(g?'Filed under '+g+'.':'Not sure, so this will go under Other.'):'Auto sorts it from your description.'):''}
+$('note').addEventListener('input',updHint);$('chips').addEventListener('change',updHint);
+
+
+function renderDetail(){var p=person();$('app').hidden=!p;document.querySelector('main').hidden=!p;if(!p)return;
+ $('who').innerHTML=st.people.map(function(q){return '<button data-w="'+q.id+'" class="'+(q.id===st.active?'on':'')+'" aria-pressed="'+(q.id===st.active)+'">'+esc(q.name)+'</button>'}).join('')+'<button class="plus" id="addF">+ Add friend</button>';
+ var h=now.getHours();$('greet').textContent=p.name+'’s budget';
+ $('today').textContent=now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+ var y=+view.slice(0,4),m=+view.slice(5)-1,cur=view===ym(now),dim=new Date(y,m+1,0).getDate(),today=cur?now.getDate():dim;
+ $('mlabel').textContent=new Date(y,m,1).toLocaleString(undefined,{month:'long',year:'numeric'});
+ $('next').disabled=cur;
+ var tx=p.tx.filter(function(t){return t.date.slice(0,7)===view}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id});
+ var inm=p.inc.filter(function(t){return t.date.slice(0,7)===view}),inc=inm.reduce(function(s,t){return s+t.amt},0),spent=tx.reduce(function(s,t){return s+t.amt},0),b=p.budget+inc,left=b-spent,pct=b>0?spent/b*100:(spent>0?100:0);
+ $('sub').textContent=left<0?'Over budget by':cur?'Left to spend this month':'Left at month end';
+ $('left').textContent=money(Math.abs(Math.round(left*100)/100));
+ var f=$('fill');f.style.width=Math.min(100,pct)+'%';f.className=pct>=100?'bad':pct>=80?'warn':'';
+ $('spent').textContent=money(Math.round(spent*100)/100)+' of '+money(b)+' · '+Math.round(pct)+'%';
+ var dl=dim-today+1;$('allow').textContent=cur&&left>0?money(Math.round(left/dl*100)/100)+'/day for '+dl+' more days':'';
+ var a=$('alert'),proj=spent/today*dim;a.hidden=false;
+ if(pct>=100){a.className='alert bad';a.textContent='You’re '+money(Math.round((spent-b)*100)/100)+' over budget. Hold off on extras for the rest of the month.'}
+ else if(pct>=80){a.className='alert warn';a.textContent='Heads up: '+Math.round(pct)+'% of your budget is gone'+(cur?' with '+dl+' days left.':'.')}
+ else if(cur&&proj>b&&spent>0){a.className='alert warn';a.textContent='At this pace you’ll spend about '+money(Math.round(proj))+' this month, '+money(Math.round(proj-b))+' over budget.'}
+ else if(spent>0){a.className='alert ok';a.textContent=cur?'You’re on track this month.':'You finished within budget.'}
+ else a.hidden=true;
+ var tot={};tx.forEach(function(t){tot[t.cat]=(tot[t.cat]||0)+t.amt});
+ var keys=Object.keys(tot).sort(function(x,y){return tot[y]-tot[x]}),C=2*Math.PI*58,off=0,s='<circle cx="84" cy="84" r="58" fill="none" stroke="var(--line)" stroke-width="22"/>';
+ keys.forEach(function(c){var len=tot[c]/spent*C;s+='<circle cx="84" cy="84" r="58" fill="none" stroke="var(--'+c+')" stroke-width="22" stroke-dasharray="'+len+' '+(C-len)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 84 84)"/>';off+=len});
+ s+='<text x="84" y="84" text-anchor="middle" fill="var(--ink)" font-size="21" font-weight="800">'+money(Math.round(spent))+'</text><text x="84" y="102" text-anchor="middle" fill="var(--mute)" font-size="12">spent</text>';
+ $('donut').innerHTML=s;
+ $('legend').innerHTML=keys.length?keys.map(function(c){return '<div><span class="d" style="background:var(--'+c+')"></span>'+c+'<em>'+money(Math.round(tot[c]*100)/100)+'</em></div>'}).join(''):'<div style="color:var(--mute)">Nothing logged yet.</div>';
+ var days=[];for(var i=0;i<dim;i++)days.push(0);tx.forEach(function(t){days[+t.date.slice(8)-1]+=t.amt});
+ var al=b/dim,mx=Math.max(al*1.5,Math.max.apply(null,days)*1.1),W=Math.max(dim*20,520),H=170,ph=H-30,bw=W/dim,r='';
+ days.forEach(function(v,i){var bh=v/mx*ph;r+='<rect x="'+(i*bw+3)+'" y="'+(8+ph-bh)+'" width="'+(bw-6)+'" height="'+bh+'" rx="3" fill="'+(v>al?'var(--bad)':'var(--ok)')+'"><title>Day '+(i+1)+': '+money(Math.round(v*100)/100)+'</title></rect>';if((i+1)%5===0||i===0)r+='<text x="'+(i*bw+bw/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11" fill="var(--mute)">'+(i+1)+'</text>'});
+ var ay=8+ph-al/mx*ph;r+='<line x1="0" x2="'+W+'" y1="'+ay+'" y2="'+ay+'" stroke="var(--mute)" stroke-dasharray="5 4"/>';
+ var sv=$('bars');sv.setAttribute('width',W);sv.setAttribute('viewBox','0 0 '+W+' '+H);sv.innerHTML=r;
+ $('barnote').textContent='Dashed line: your daily allowance of '+money(Math.round(al*100)/100)+'. Red days went over it.';
+ var all=tx.map(function(t){return{t:t,k:'x'}}).concat(inm.map(function(t){return{t:t,k:'i'}})).sort(function(a,b){return a.t.date<b.t.date?1:-1});
+ $('list').innerHTML=all.length?all.map(function(r){var t=r.t,i=r.k==='i';return '<li><span class="ic" aria-hidden="true">'+(i?'💰':CATS[t.cat])+'</span><span class="n"><span>'+esc(t.note)+'</span><small>'+(i?'Income':t.cat)+' · '+new Date(t.date+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})+'</small></span><span class="a" style="color:'+(i?'var(--ok)':'inherit')+'">'+(i?'+':'')+money(t.amt)+'</span><button class="x" data-e="'+t.id+'" data-k="'+r.k+'" aria-label="Edit '+esc(t.note)+'">✎</button><button class="x" data-id="'+t.id+'" data-k="'+r.k+'" aria-label="Delete '+esc(t.note)+'">×</button></li>'}).join(''):'<div class="empty">Nothing in this month yet.<br>Tap “Add” to log an expense or income.</div>';
+}
+$('prev').onclick=function(){var d=new Date(+view.slice(0,4),+view.slice(5)-2,1);view=ym(d);render()};
+$('next').onclick=function(){var d=new Date(+view.slice(0,4),+view.slice(5),1);view=ym(d);render()};
+function render(){renderDetail();var p=person(),cm=ym(now);$('hmeta').textContent=p?p.name+' · '+sm(p.budget+sum(p.inc,cm)-sum(p.tx,cm))+' left this month':'Welcome! Tap below to set up your first budget.'}
+function show(){render()}
+var wFriend=false;
+function openWelcome(fr){var d=$('welcome');if(d.open)return;wFriend=!!fr;
+ $('wT').textContent=fr?'Add a friend 👋':'Welcome to SpendSense 💚';$('wSub').textContent=fr?'Track their expenses separately.':'Let’s get your money journey started.';
+ $('wL1').textContent=fr?'Enter your friend’s name':'Enter your name';$('wL2').textContent=fr?'Set their monthly budget (₹)':'Set your monthly budget (₹)';$('wGo').textContent=fr?'Add friend':'Get Started';
+ $('wName').value='';$('wBudget').value='';$('wErr').textContent='';d.showModal();$('wName').focus()}
+$('who').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.id==='addF'){openWelcome(true);return}
+ var q=byId(b.getAttribute('data-w'));if(q){st.active=q.id;save();render()}});
+$('cue').onclick=function(){if(!st.people.length)openWelcome();else $('app').scrollIntoView({behavior:'smooth'})};
+$('wClose').onclick=function(){$('welcome').close()};
+$('welcome').addEventListener('pointerdown',function(e){if(e.target!==this)return;var r=this.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)this.close()});
+$('wForm').addEventListener('input',function(){$('wErr').textContent=''});
+$('wForm').addEventListener('submit',function(e){e.preventDefault();var n=$('wName').value.trim(),b=parseFloat($('wBudget').value),er=$('wErr');
+ if(!n){er.textContent='Please enter your name.';$('wName').focus();return}
+ if(!isFinite(b)||b<=0){er.textContent='Enter a monthly budget greater than 0, e.g. 5000.';$('wBudget').focus();return}
+ if(b>1e9){er.textContent='That budget looks too large. Please check the amount.';$('wBudget').focus();return}
+ if(wFriend){if(st.people.some(function(x){return x.name.toLowerCase()===n.toLowerCase()})){er.textContent='You already have someone with that name.';$('wName').focus();return}}
+ else if(st.people.length){$('welcome').close();$('app').scrollIntoView({behavior:'smooth'});return}
+ var q=mk(n,b);st.people.push(q);st.active=q.id;save();$('welcome').close();render();if(wFriend)toast('Added '+n);else{toast('Welcome, '+n+'!');$('app').scrollIntoView({behavior:'smooth'})}});
+function kind(){return document.querySelector('input[name=kind]:checked').value}
+var edit=null;
+function kindUI(){var i=kind()==='i';$('chips').hidden=i;$('hint').hidden=i;$('kind').hidden=!!edit;var pp=person();$('addT').textContent=(edit?'Edit ':'New ')+(i?'income':'expense')+(pp?' for '+pp.name:'')}
+$('kind').addEventListener('change',function(){kindUI();updHint()});
+function openAdd(k,rec){if(!person())return;edit=rec?{id:rec.id}:null;document.querySelector('input[name=kind][value='+k+']').checked=true;
+ $('amt').value=rec?rec.amt:'';$('note').value=rec?rec.note:'';$('date').value=rec?rec.date:iso(now);$('date').max=iso(now);
+ var cr=document.querySelector('input[name=cat][value='+(rec&&k==='x'?rec.cat:'auto')+']');(cr||document.querySelector('input[name=cat][value=auto]')).checked=true;
+ kindUI();updHint();$('add').showModal();$('amt').focus()}
+$('fab').onclick=function(){openAdd('x')};
+$('save').onclick=function(){var p=person(),a=parseFloat($('amt').value),n=$('note').value.trim(),k=kind();if(!(a>0)){$('amt').focus();return}if(!n){$('note').focus();return}
+ var d=$('date').value||iso(now),L=k==='i'?p.inc:p.tx,c=pick()==='auto'?(guess(n)||'Other'):pick(),r;
+ if(edit){r=L.filter(function(t){return t.id===edit.id})[0];if(r){r.amt=a;r.note=n;r.date=d;if(k==='x')r.cat=c}}
+ else{r={id:Date.now(),amt:a,note:n,date:d};if(k==='x')r.cat=c;L.push(r)}
+ save();view=d.slice(0,7);$('add').close();render();toast(k==='i'?'Income saved':'Saved to '+c);budgetCheck()};
+$('list').onclick=function(e){var b=e.target.closest('button');if(!b)return;var p=person(),k=b.getAttribute('data-k'),L=k==='i'?p.inc:p.tx,id=b.getAttribute('data-id')||b.getAttribute('data-e'),i=L.findIndex(function(t){return String(t.id)===id});if(i<0)return;
+ if(b.hasAttribute('data-e'))openAdd(k,L[i]);else{L.splice(i,1);save();render();toast('Deleted');budgetCheck()}};
+$('gear').onclick=function(){var p=person();$('sName').value=p.name;$('sBudget').value=p.budget;$('set').showModal()};
+$('sClose').onclick=function(){$('set').close()};
+$('sSave').onclick=function(){var p=person(),b=parseFloat($('sBudget').value);if(!(b>=0)){$('sBudget').focus();return}p.budget=b;p.name=$('sName').value.trim()||p.name;save();$('set').close();render();toast('Saved');budgetCheck()};
+$('export').onclick=function(){var p=person();if(!p)return;var R=p.tx.map(function(t){return[t.date,'expense',t.note,t.cat,t.amt]}).concat(p.inc.map(function(t){return[t.date,'income',t.note,'',t.amt]})).sort();
+ var rows=['date,type,description,category,amount'].concat(R.map(function(r){return r[0]+','+r[1]+',"'+r[2].replace(/"/g,'""')+'",'+r[3]+','+r[4]}));
+ try{var u=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'})),l=document.createElement('a');l.href=u;l.download=p.name+'.csv';l.click()}catch(e){toast('Export isn’t available here')}};
+$('wipe').onclick=function(){var p=person();if(p)delPerson(p.id)};
+$('clearAll').onclick=function(){if(!confirm('Clear ALL data for everyone (all people, expenses and income)? This can’t be undone.'))return;st={people:[],active:0};try{localStorage.removeItem(KEY)}catch(e){}$('set').close();render();scrollTo({top:0,behavior:'smooth'});toast('All data cleared')};
+/* Expense reminders (separate key; works while SpendSense is open in a tab) */
+var RKEY='spendsense.remind',rem={on:false,mins:60,last:0},T0=document.title,
+RMSG=['did you spend anything in the last hour? Log it now 🍜','quick check: any chai, snacks or rides to add? 🚌','a tiny note now saves a big guess later ✨','don’t let today’s spending slip away. Add it! 🌸','got a minute? Update your expenses 💚'];
+try{var rr=JSON.parse(localStorage.getItem(RKEY));if(rr&&typeof rr==='object'){rem.on=!!rr.on;rem.mins=+rr.mins>0?+rr.mins:60;rem.last=+rr.last||0}}catch(e){}
+function saveRem(){try{localStorage.setItem(RKEY,JSON.stringify(rem))}catch(e){}}
+function remEvery(){return rem.mins===60?'hour':rem.mins<60?rem.mins+' minutes':rem.mins/60+' hours'}
+function remHint(){var n=window.Notification?Notification.permission:'unsupported',h=$('rHint');
+ h.textContent=!rem.on?'Get a nudge so you never forget to log what you spend.':
+  n==='granted'?'On. You’ll be nudged every '+remEvery()+' while SpendSense is open in a browser tab.':
+  n==='denied'?'Browser notifications are blocked, so you’ll see an in-app reminder instead. You can allow them in your browser’s site settings.':
+  n==='unsupported'?'This browser can’t show notifications, so you’ll see an in-app reminder instead.':'Tap “Allow” when your browser asks.'}
+function fireRem(test){var p=person(),body=(p?p.name+', ':'')+RMSG[Math.floor(Math.random()*RMSG.length)],done=false;
+ if((document.hidden||test)&&window.Notification&&Notification.permission==='granted'){try{var nt=new Notification('SpendSense 🌸',{body:body,tag:'spendsense-reminder',renotify:true});nt.onclick=function(){window.focus();nt.close()};done=true}catch(e){}}
+ if(!done){if(document.hidden)document.title='🔔 Log your expenses';else toast(body)}}
+function remTick(){if(!rem.on||!st.people.length)return;if(Date.now()-rem.last>=rem.mins*60000){rem.last=Date.now();saveRem();fireRem()}}
+setInterval(remTick,30000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden){document.title=T0;remTick()}});
+function syncRem(){$('rOn').checked=rem.on;$('rMins').value=[30,60,120,180].indexOf(rem.mins)>-1?String(rem.mins):'60';remHint()}
+$('gear').addEventListener('click',syncRem);
+$('rOn').onchange=function(){rem.on=this.checked;rem.last=Date.now();saveRem();
+ if(rem.on&&window.Notification&&Notification.permission==='default'){try{var r=Notification.requestPermission(remHint);if(r&&r.then)r.then(remHint)}catch(e){}}
+ remHint();toast(rem.on?'Reminders on ⏰':'Reminders off')};
+$('rMins').onchange=function(){rem.mins=+this.value;rem.last=Date.now();saveRem();remHint()};
+$('rTest').onclick=function(){fireRem(true);$('rHint').textContent='Test sent! If you didn’t see a notification, check your browser’s notification settings for this site.'};
+addEventListener('pagehide',save);
+$('cancel').onclick=function(){$('add').close()};
+(function(){
+var z=$('zoo'),hero=$('hero'),E=['🐱','🐰','🦊','🐸','🐥','🐢','🐹','🐻','🦔','🐧','🐶','🐼','🦉','🐨','🐷','🦆','🐭','🐞','🦋','🐝','🐿️','🦝'],
+SAY=['hi!','save a little ♥','chai time ☕','squeak!','you’ve got this','snack budget?','no impulse buys','ooh, shiny','nice budgeting!'],
+W,H,mx=-999,my=-999,cs=[],vis=true,still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function sz(){W=z.clientWidth;H=z.clientHeight}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function burst(x,y,e){for(var i=0;i<6;i++){var q=document.createElement('span');q.className='pt';q.textContent=e;q.style.left=x+'px';q.style.top=y+'px';q.style.setProperty('--dx',(Math.random()*90-45)+'px');q.addEventListener('animationend',function(){this.remove()});z.appendChild(q)}}
+function say(c,t){var o=c.d.querySelector('.bub');if(o)o.remove();var b=document.createElement('div');b.className='bub';b.textContent=t;c.d.appendChild(b);setTimeout(function(){b.remove()},1500)}
+function aim(c){c.tx=40+Math.random()*Math.max(W-80,10);c.ty=c.f?H*.1+Math.random()*H*.45:H*.66+Math.random()*Math.max(H*.3-24,10);c.t=120+Math.random()*260;c.sp=c.f?.9:.25+Math.random()*.4}
+function place(c){var sc=c.f?.8:.7+Math.max(0,Math.min(1,(c.y-H*.62)/(H*.38)))*.6;c.d.style.transform='translate('+c.x+'px,'+c.y+'px) scale('+sc+')';c.d.firstChild.style.transform='scaleX('+(c.vx>0?-1:1)+')';c.d.style.zIndex=Math.round(c.y)}
+function step(c){if(--c.t<=0)aim(c);var dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy)||1;c.vx+=(dx/d*c.sp-c.vx)*.04;c.vy+=(dy/d*c.sp-c.vy)*.04;
+ var ox=c.x-mx,oy=c.y-my,od=Math.hypot(ox,oy);if(od<110){c.vx+=ox/od*.3;c.vy+=oy/od*.15}
+ c.x=Math.max(10,Math.min(W-40,c.x+c.vx*(1+c.boost)));c.y=Math.max(10,Math.min(H-44,c.y+c.vy*(1+c.boost)));c.boost*=.96;place(c)}
+sz();addEventListener('resize',sz);
+for(var i=0;i<(W<600?15:24);i++)(function(){var e=E[i%E.length],d=document.createElement('div'),c={d:d,x:0,y:0,vx:0,vy:0,boost:0,f:['🦋','🐝','🦉'].indexOf(e)>-1};
+ d.className='cr';d.innerHTML='<span class="em"><span class="b">'+e+'</span></span>';d.firstChild.firstChild.style.animationDelay=(-Math.random()*.5)+'s';
+ aim(c);c.x=c.tx;c.y=c.ty;
+ d.addEventListener('pointerenter',function(){d.classList.remove('hop');void d.offsetWidth;d.classList.add('hop');say(c,rnd(SAY))});
+ d.addEventListener('click',function(){c.boost=5;d.classList.remove('spin');void d.offsetWidth;d.classList.add('spin');burst(c.x+10,c.y,rnd(['❤','✨','₹','⭐']));say(c,rnd(SAY))});
+ z.appendChild(d);cs.push(c);place(c)})();
+for(var j=0;j<14;j++){var f=document.createElement('span');f.className='ff';f.style.left=Math.random()*100+'%';f.style.top=(20+Math.random()*60)+'%';f.style.animationDelay=(-Math.random()*6)+'s';z.appendChild(f)}
+hero.addEventListener('pointermove',function(e){var r=z.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top});
+hero.addEventListener('pointerleave',function(){mx=my=-999});
+if('IntersectionObserver' in window)new IntersectionObserver(function(en){vis=en[0].isIntersecting}).observe(hero);
+(function tick(){if(vis&&!still)cs.forEach(step);requestAnimationFrame(tick)})();
+function fabVis(){$('fab').style.display=scrollY>innerHeight*.7?'':'none'}
+addEventListener('scroll',fabVis,{passive:true});fabVis();
+try{history.scrollRestoration='manual'}catch(e){}scrollTo(0,0);
+})();
+
+show();
+})();
+</script>
+</body>
+</html>
